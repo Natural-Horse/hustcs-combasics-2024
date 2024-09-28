@@ -98,27 +98,44 @@ int restore_student(char *buf, int len, struct student* s) {
     return count;
 }
 
+void print_float(float num){
+    char * pt = (char *)&num;
+    printf("\n");
+    for(int i = 3; i >= 0; --i){
+        printf("%02x", pt[i]);
+    }
+}
+
 int main() {
     struct student old_s[N], new_s[N];
     char message[1000005];
     
-    input_students(old_s, N);// 输入学生数据
+    input_students(old_s, N);//输入学生数据
+    for (int i = 0; i < N; i++) {          //打印压缩前数据
+        printf("Student %d: %s, Age: %d, Score: %.2f, Remark: %s\n",      
+            i, old_s[i].name, old_s[i].age, old_s[i].score, old_s[i].remark);
+    }
+
+    printf("The first student's score: ");
+    print_float(old_s[0].score);
+    printf("\n");
     
-    int len1 = pack_student_bytebybyte(old_s, N1, message);// 压缩前N1个学生使用字节逐字节压缩
+    int len1 = pack_student_bytebybyte(old_s, N1, message);//逐字节压缩前N1个学生
     
-    int len2 = pack_student_whole(old_s + N1, N2, message + len1);// 压缩后N2个学生使用整体压缩
+    int len2 = pack_student_whole(old_s + N1, N2, message + len1);//整体压缩后N2个学生
     
     int total_len = len1 + len2;
     printf("Total compressed length: %d\n", total_len);
     
-    restore_student(message, total_len, new_s);// 解压数据
+    int Count = restore_student(message, total_len, new_s);//解压数据
     
-    for (int i = 0; i < N; i++) {          // 打印解压结果
+    printf("Count : %d\n", Count);     //打印解压后人数
+    for (int i = 0; i < N; i++) {          //打印解压结果
         printf("Student %d: %s, Age: %d, Score: %.2f, Remark: %s\n",
             i, new_s[i].name, new_s[i].age, new_s[i].score, new_s[i].remark);
     }
     
-    printf("First 20 bytes of compressed data:\n");    // 打印前20个字节的内容
+    printf("First 20 bytes of compressed data:\n");    //打印前20个字节的内容
     for (int i = 0; i < 20; i++) {
         printf("%02x ", (unsigned char)message[i]);
     }
