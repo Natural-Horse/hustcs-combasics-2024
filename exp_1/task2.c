@@ -33,10 +33,12 @@ int isTmax(int x) {
     return !(~x ^ (x + 1)); 
 }
 int bitCount(int x) {
-    int tmp = x, res = 0;
-    while(tmp != 0){
-        res += (tmp & 1);
-        tmp >>= 1;
+    int res = 0;
+    int mask = 0x11111111;
+    int s = (x & mask) + ((x >> 1) & mask) + ((x >> 2) & mask) + ((x >> 3) & mask);
+    for(int i = 1; i <= 8; i++){
+        res += s & 0x0000000f;
+        s >>= 4;
     }
     return res;
 }
@@ -100,7 +102,7 @@ int main(){
         }
         else if(my_strcmp(op, "bitCount")){
             scanf("%d", &x);
-            printf("%d, 1 '+', 1 '&', 1 '>>' is used per loop, for no more than 32 turns.\n", bitCount(x));
+            printf("%d, 31 operations is used.\n", bitCount(x));
         }
         else if(my_strcmp(op, "bitMask")){
             scanf("%d %d", &x, &y);
