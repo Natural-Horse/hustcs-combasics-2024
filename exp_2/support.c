@@ -1,62 +1,16 @@
-/*
- * support.c - Helper functions for the bomb
- *
- * Copyright (c) 2004-2011, R. Bryant and D. O'Hallaron, All rights reserved.
- * May not be used, modified, or copied without permission.
- */ 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <ctype.h>
-#include <signal.h>
-#include <time.h>
-#include <sys/param.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-
 #include "support.h"
-#include "config.h"
-#include "driverlib.h"
 
-/* Globals defined by phases.c */
-extern int bomb_id;
-
-#ifdef NOTIFY
-extern char userid[];
-#endif
-
-/* Global input stream defined by bomb.c */
 extern FILE *infile;
 
-/* Global that keeps track of the user's input strings */
 char input_strings[MAX_STRINGS][MAX_LINE];
 int num_input_strings = 0;
+//char scratch[MAX_LINE];
 
-/* Global scratch buffer */
-char scratch[MAX_LINE];
-
-/******************************************************
- * Amusing signal handler called when user types ctrl-c
- ******************************************************/
-
-static void sig_handler(int sig)
-{
-    printf("So you think you can stop the bomb with ctrl-c, do you?\n");
-    sleep(3);
-    printf("Well...");
-    fflush(stdout);
-    sleep(1);
-    printf("OK. :-)\n");
-    exit(16);
-}
-
-/************************************************** 
- * Helper routines called by the phases in phases.c
- **************************************************/
 
 /* Invoked by improperly built phases */
 void invalid_phase(char *s) 
@@ -98,10 +52,8 @@ int strings_not_equal(char *string1, char *string2)
 
     if (string_length(string1) != string_length(string2))
 	return 1;
-
     p = string1;
     q = string2;
-
     while (*p != 0) {
 	if (*p != *q)
 	    return 1;
@@ -111,59 +63,6 @@ int strings_not_equal(char *string1, char *string2)
     return 0;
 }
 
-
-/***********************************
- * Helper functions called by bomb.c  			 
- ***********************************/
-
-/* 
- * initialize_bomb - initialize the bomb 
- */
-void initialize_bomb(void)
-{
-#ifdef NOTIFY
-    int i;
-    char hostname[MAXHOSTNAMELEN];
-    char status_msg[SUBMITR_MAXBUF];
-    int valid_host = 0;
-#endif
-
-    /* Just for fun, trap Ctrl-C: */
-    signal(SIGINT, sig_handler);
-    
-#ifdef NOTIFY
-    /* Get the host name of the machine */
-    if (gethostname(hostname, MAXHOSTNAMELEN) != 0) {
-	printf("Initialization error: Running on an illegal host [1]\n");
-	exit(8);
-    }
-
-    /* Make sure it's in the list of legal machines */
-    for (i = 0; host_table[i]; i++) {
-	if (strcasecmp(host_table[i], hostname) == 0) {
-	    valid_host = 1;
-	    break;
-	}
-    }
-    if (!valid_host) {
-	printf("Initialization error: Running on an illegal host [2]\n");
-	exit(8);
-    }
-
-    /* Initialize the submitr package */
-    if (init_driver(status_msg) < 0) {
-	printf("Initialization error:\n%s\n", status_msg);
-	exit(8);
-    }
-#endif
-}
-
-/*
- * Initialize solution version of bomb
- */
-void initialize_bomb_solve(void)
-{
-}
 
 /* Return true if str is a blank line */
 int blank_line(char *str)
@@ -235,67 +134,12 @@ char *read_line(void)
     return input_strings[num_input_strings++];
 }
 
-#ifdef NOTIFY
-void send_msg(int defused)
-{
-    char autoresult[SUBMITR_MAXBUF];
-    char status_msg[SUBMITR_MAXBUF];
-
-    int status;
-
-    if (strlen(input_strings[num_input_strings - 1]) + 100 > SUBMITR_MAXBUF) {
-	printf("ERROR: Input string is too large.");
-	exit(8);
-    }
-    
-    sprintf(autoresult, "%d:%s:%d:%s", 
-	    bomb_id,
-	    defused ? "defused" : "exploded",  
-	    num_input_strings, 
-	    input_strings[num_input_strings - 1]);
-
-    status = driver_post(userid, autoresult, 0, status_msg);
-    if (status < 0) {
-	printf("%s\n", status_msg);
-	exit(0);
-    }
-}
-#endif
 
 void explode_bomb(void)
 {
-    printf("\nBOOM!!!\n");
-    printf("The bomb has blown up.\n");
-#ifdef NOTIFY
-    send_msg(0);
-    printf("Your instructor has been notified.\n");
-#endif
-
+    printf("\n BOOM !  \n You failed \n");
     exit(8);
 }
 
-void phase_defused(void)
-{
-    char passphrase[MAX_LINE];
-    int tmp1, tmp2, numScanned;
 
-#ifdef NOTIFY
-    send_msg(1);
-#endif
-
-    if (num_input_strings == 6) { /* user has just defused phase 6 */
-	numScanned = sscanf(input_strings[3], "%d %d %s", 
-			    &tmp1, &tmp2, passphrase);
-	if ((numScanned == 3) && 
-	    (strings_not_equal(passphrase, SECRET_PHRASE) == 0)) {
-	    printf("Curses, you've found the secret phase!\n");
-	    printf("But finding it and solving it are quite different...\n");
-	    secret_phase();
-	}
-	printf ("Congratulations! You've defused the bomb!\n");
-#ifdef NOTIFY
-	printf("Your instructor has been notified and will verify your solution.\n");
-#endif	
-    }
-}
 

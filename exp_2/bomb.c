@@ -1,55 +1,84 @@
-/***************************************************************************
- * Dr. Evil's Insidious Bomb, Version 1.1
- * Copyright 2011, Dr. Evil Incorporated. All rights reserved.
- *
- * LICENSE:
- *
- * Dr. Evil Incorporated (the PERPETRATOR) hereby grants you (the
- * VICTIM) explicit permission to use this bomb (the BOMB).  This is a
- * time limited license, which expires on the death of the VICTIM.
- * The PERPETRATOR takes no responsibility for damage, frustration,
- * insanity, bug-eyes, carpal-tunnel syndrome, loss of sleep, or other
- * harm to the VICTIM.  Unless the PERPETRATOR wants to take credit,
- * that is.  The VICTIM may not distribute this bomb source code to
- * any enemies of the PERPETRATOR.  No VICTIM may debug,
- * reverse-engineer, run "strings" on, decompile, decrypt, or use any
- * other technique to gain knowledge of and defuse the BOMB.  BOMB
- * proof clothing may not be worn when handling this program.  The
- * PERPETRATOR will not apologize for the PERPETRATOR's poor sense of
- * humor.  This license is null and void where the BOMB is prohibited
- * by law.
- ***************************************************************************/
-
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "support.h"
-#include "phases.h"
-
-/* 
- * Note to self: Remember to erase this file so my victims will have no
- * idea what is going on, and so they will all blow up in a
- * spectaculary fiendish explosion. -- Dr. Evil 
- */
 
 FILE *infile;
 
+char  studentid[11];
+void    initialize_bomb(char *userid) 
+{
+   int len;
+   int x=1,y=2,z=3,u=4,v=5,w=6;
+   len =strlen(userid);
+   if (len !=10)  {
+       printf("The student number has 10 characters, such as U202215001 \n");
+       exit(0);
+   }
+   strcpy(studentid, userid);
+   printf("welcome  %s \n",userid);
+   #ifdef U0
+      if (userid[len-1]=='0')   {
+          x=100;  x=~x;  w = 2*x;   
+          return;
+     }
+   #endif
+   #ifdef U1
+      if (userid[len-1]=='1')   {
+            w = 2*x+3*y;   return;
+      }
+   #endif
+   #ifdef U2
+      if (userid[len-1]=='2')  {
+          w = 2*x+3*y+4*u;  return;
+      }
+   #endif
+   #ifdef U3
+      if (userid[len-1]=='3')   {
+         w = 2*x+3*y+4*u+x;  return;
+      }
+   #endif
+   #ifdef U4
+      if (userid[len-1]=='4')   {
+         w = 2*x+3*y+4*u+x+5*w;  return;
+      }
+   #endif
+   #ifdef U5
+      if (userid[len-1]=='5')   {
+          w =-u;  return;
+      }
+   #endif
+   #ifdef U6
+      if (userid[len-1]=='6')   {
+        w =-u-v;   return;
+      }
+   #endif
+   #ifdef U7
+      if (userid[len-1]=='7')   {
+          return;
+      }
+   #endif
+   #ifdef U8
+      if (userid[len-1]=='8')   {
+           x=4*w+10;   return;
+      }
+   #endif
+   #ifdef U9
+      if (userid[len-1]=='9')   {
+          x=4*w+5*y;   return;
+      }
+   #endif
+   printf(" gcc  -g -o binarybomb -D U* bomb.c  support.c  phase.o\n");
+   printf(" U* : * is the last number of your Student Id . \n");
+    printf(" example :  U202215001  ->   -D U1 . \n"); 
+   exit(0);
+}
+
 int main(int argc, char *argv[])
 {
-    char *input;
-
-    /* Note to self: remember to port this bomb to Windows and put a 
-     * fantastic GUI on it. */
-
-    /* When run with no arguments, the bomb reads its input lines 
-     * from standard input. */
-    if (argc == 1) {  
+    char *input, *userid;
+    if (argc == 1)   
 	infile = stdin;
-    } 
-
-    /* When run with one argument <file>, the bomb reads from <file> 
-     * until EOF, and then switches to standard input. Thus, as you 
-     * defuse each phase, you can add its defusing string to <file> and
-     * avoid having to retype it. */
     else if (argc == 2) {
                 infile = fopen(argv[1], "r");
 	if (!infile) {
@@ -57,60 +86,48 @@ int main(int argc, char *argv[])
 	    exit(8);
 	}
     }
-
-    /* You can't call the bomb with more than 1 command line argument. */
     else {
 	printf("Usage: %s [<input_file>]\n", argv[0]);
 	exit(8);
     }
 
-    /* Do all sorts of secret stuff that makes the bomb harder to defuse. */
-    initialize_bomb();
+    printf("Input your Student ID : \n");
+    userid = read_line();
+    initialize_bomb(userid);
 
-    printf("Welcome to my fiendish little bomb. You have 6 phases with\n");
-    printf("which to blow yourself up. Have a nice day!\n");
+    printf("You have 6 bombs to defuse! \n");
 
-    /* Hmm...  Six phases must be more secure than one phase! */
-    input = read_line();             /* Get input                   */
-    phase_1(input);                  /* Run the phase               */
-    phase_defused();                 /* Drat!  They figured it out!
-				      * Let me know how they did it. */
-    printf("Phase 1 defused. How about the next one?\n");
+    printf("Gate 1 :  input a string that meets the requirements. \n");
+    input = read_line();             /* 输入一行信息                   */
+    phase_1(input);                   /* 若一关炸弹拆除失败，会报错  */
+    printf("Phase 1 passed! \n");
 
-    /* The second phase is harder.  No one will ever figure out
-     * how to defuse this... */
+    printf("Gate 2 :  input six intergers that meets the requirements. \n");
     input = read_line();
     phase_2(input);
-    phase_defused();
-    printf("That's number 2.  Keep going!\n");
+    printf("Phase 2 passed! \n");
 
-    /* I guess this is too easy so far.  Some more complex code will
-     * confuse people. */
+    printf("Gate 3 :  input 2 intergers. \n");
     input = read_line();
     phase_3(input);
-    phase_defused();
-    printf("Halfway there!\n");
+    printf("Phase 3 passed! \n");
 
-    /* Oh yeah?  Well, how good is your math?  Try on this saucy problem! */
+    printf("Gate 4 :  input 2 intergers and a string. \n");
     input = read_line();
     phase_4(input);
-    phase_defused();
-    printf("So you got that one.  Try this one.\n");
+    printf("Phase 4 passed! \n");
     
-    /* Round and 'round in memory we go, where we stop, the bomb blows! */
+   printf("Gate 5 :  input  a string. \n");
     input = read_line();
     phase_5(input);
-    phase_defused();
-    printf("Good work!  On to the next...\n");
+    printf("Phase 5 passed! \n");
 
-    /* This phase will never be used, since no one will get past the
-     * earlier ones.  But just in case, make this one extra hard. */
+   printf("Gate 6 :  input 6 intergers. \n");
     input = read_line();
     phase_6(input);
-    phase_defused();
+    printf("Phase 6 passed! \n");
 
-    /* Wow, they got it!  But isn't something... missing?  Perhaps
-     * something they overlooked?  Mua ha ha ha ha! */
-    
+    printf("Congratulations! You have passed all the tests! \n");
     return 0;
 }
+
