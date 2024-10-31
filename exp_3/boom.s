@@ -1,0 +1,3 @@
+mov 0x4040e8, %rax
+push $0x4014aa
+ret
