@@ -1,0 +1,2 @@
+lea 0x2c(%rbp), %rdi
+call -0x35
